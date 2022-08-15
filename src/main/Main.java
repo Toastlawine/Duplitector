@@ -1,18 +1,15 @@
 package main;
 
-import detector.Detector;
-import gui.GUI;
+import gui.Controller;
 
 public class Main {
 
     private static Main program;
 
-    private GUI gui;
-    private Detector detector;
+    private Controller gui;
 
     private Main() {
-        gui = new GUI();
-        detector = new Detector();
+        gui = new Controller();
     }
 
     public static void main(String[] args) {
