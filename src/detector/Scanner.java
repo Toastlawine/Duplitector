@@ -7,15 +7,22 @@ import java.util.List;
 public class Scanner {
 
     private List<String> files;
+    private List<ScannedImage> scannedImages;
 
     public void scan() {
         files = new ArrayList<>();
-        getFiles();
+        loadFiles();
     }
-    private void getFiles() {
+    private void loadFiles() {
         File here = new File("");
-        System.out.println(here.list());
-        System.out.println(here.getAbsolutePath());
+        here = here.getAbsoluteFile();
+
+        for (String s : here.list()) {
+            if (s.length() < 4) continue;
+            String suffix = s.substring(s.length()-4);
+            if (!s.endsWith(".png") && !s.endsWith(".jpg")) continue;
+            files.add(s);
+        }
     }
 
 }
