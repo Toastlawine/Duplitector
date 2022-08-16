@@ -5,10 +5,7 @@ import main.Finals;
 import util.Vector;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Saves scanned images on the file system
@@ -19,31 +16,33 @@ public class ScanSaver {
 
     // id;folder;mean;()()...()()
 
-    //TODO UUID format
-    public List<ScannedImage> load() {
-        List<ScannedImage> list = new ArrayList<>();
+    //TODO UUID format check
+    public HashMap<UUID, ScannedImage> load() {
+        HashMap<UUID, ScannedImage> list = new HashMap<>();
 
         try {
             Scanner reader = new Scanner(saveFile);
 
             int i1, i2, i3;
             UUID id;
-            String parentFolder;
+            String path;
             Vector mean;
             Vector[][] matrix;
             while (reader.hasNextLine()) {
                 String s = reader.nextLine();
                 i1 = s.indexOf(';');
-                i2 = s.substring(i1 + 1).indexOf(';');
-                i3 = s.substring(i2 + 1).indexOf(';');
+                i2 = s.substring(i1 + 1).indexOf(';') + i1 + 1;
+                i3 = s.substring(i2 + 1).indexOf(';') + i2 + 1;
                 id = UUID.fromString(s.substring(0, i1));
-                parentFolder = s.substring(i1 + 1, i2);
+                path = s.substring(i1 + 1, i2);
                 mean = Vector.fromString(s.substring(i2 + 1, i3));
                 if (mean == null) continue;
                 matrix = matrixFromString(s.substring(i3 + 1));
                 if (matrix == null) continue;
-                list.add(new ScannedImage(id, parentFolder, mean, matrix));
+                File file = new File(path);
+                if (file.exists()) list.put(id, new ScannedImage(id, path, mean, matrix));
             }
+            reader.close();
 
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
@@ -70,13 +69,13 @@ public class ScanSaver {
         return re;
     }
 
-    public void save(List<ScannedImage> images) {
+    public void save(Collection<ScannedImage> images) {
         try {
+            FileWriter writer = new FileWriter(saveFile);
+            int size = Finals.MATRIX_SIZE;
             for (ScannedImage i : images) {
-                FileWriter writer = new FileWriter(saveFile);
-                String s = i.getId().toString() + ";" + i.getParentFolder() + ";" + i.getMean().toString() + ";";
+                String s = i.getId().toString() + ";" + i.getPath() + ";" + i.getMean().toString() + ";";
 
-                int size = Finals.MATRIX_SIZE;
                 for (int y = 0; y < size; y++) {
                     for (int x = 0; x < size; x++) {
                         s = s + i.getMatrixVector(x, y);
@@ -85,16 +84,18 @@ public class ScanSaver {
 
                 writer.write(s + "\n");
             }
+            writer.flush();
+            writer.close();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
     public ScanSaver() {
-        saveFile = new File("scanned_images.txt");
+        saveFile = new File("Duplitector/scanned_images.txt");
         try {
             if (!saveFile.exists()) {
-                saveFile.mkdir();
+                saveFile.getParentFile().mkdir();
                 saveFile.createNewFile();
             }
         } catch (IOException ex) {

@@ -10,20 +10,20 @@ public class ScannedImage {
     private Vector[][] matrix;
     private Vector mean;
     private UUID id;
-    private String parentFolder;
+    private String path;
 
-    public ScannedImage(Vector[][] matrix, String parentFolder) {
+    public ScannedImage(Vector[][] matrix, String path) {
         this.matrix = matrix;
         id = UUID.randomUUID();
-        this.parentFolder = parentFolder;
+        this.path = path;
         calculateMean();
     }
 
-    public ScannedImage(UUID id, String parentFolder, Vector mean, Vector[][] matrix) {
+    public ScannedImage(UUID id, String path, Vector mean, Vector[][] matrix) {
         this.matrix = matrix;
         this.mean = mean;
         this.id = id;
-        this.parentFolder = parentFolder;
+        this.path = path;
     }
 
     private void calculateMean() {
@@ -33,7 +33,7 @@ public class ScannedImage {
                 m.add(v);
             }
         }
-        m.divide(Finals.MATRIX_SIZE^2);
+        m.divide(Finals.MATRIX_SIZE * Finals.MATRIX_SIZE);
         mean = m;
     }
 
@@ -53,7 +53,11 @@ public class ScannedImage {
         return id;
     }
 
-    public String getParentFolder() {
-        return parentFolder;
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 }
