@@ -12,13 +12,22 @@ public class Main {
     private Controller gui;
 
     private Main() {
-        gui = new Controller();
+    }
+
+    private void init() {
+        //gui = new Controller();
         detector = new Detector();
         detector.detect();
+        System.exit(0);
+    }
+
+    public void message(String m) {
+        System.out.println(m);
     }
 
     public static void main(String[] args) {
         program = new Main();
+        program.init();
     }
 
     public static Main getProgram() {

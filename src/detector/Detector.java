@@ -2,6 +2,7 @@ package detector;
 
 import database.DuplicateSaver;
 import main.Finals;
+import main.Main;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -45,6 +46,7 @@ public class Detector {
             }
         }
         duplicateSaver.save(duplicates);
+        Main.getProgram().message(duplicates.size() + " duplicates found");
     }
 
     private void findDuplicatesInSameChunk(Chunk c) {
@@ -70,13 +72,16 @@ public class Detector {
         double p = 1;
         for (int y = 0; y < Finals.MATRIX_SIZE; y++) {
             for (int x = 0; x < Finals.MATRIX_SIZE; x++) {
-                p *= i1.getMatrixVector(x, y).cosineLengthSimilarity(i2.getMatrixVector(x, y));
+                double f = i1.getMatrixVector(x, y).distance(i2.getMatrixVector(x, y));
+                f = 1 - f / 256d / Math.sqrt(3);
+                double cs = i1.getMatrixVector(x, y).cosineSimilarity(i2.getMatrixVector(x, y));
+                p *= f * cs;
             }
         }
         //p = Math.pow(p,1);
         if (p < Finals.TOLERATED_DEVIATION) return;
         duplicates.add(new Duplicate(i1, i2));
-        System.out.println("Duplicate found (" + p + "): " + i1.getId().toString() + " and " + i2.getId().toString());
+        Main.getProgram().message("Duplicate found (" + p + "): " + i1.getId().toString() + " and " + i2.getId().toString());
     }
 
     private void initChunks() {

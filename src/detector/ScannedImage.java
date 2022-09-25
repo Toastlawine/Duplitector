@@ -12,9 +12,10 @@ public class ScannedImage {
     private UUID id;
     private String path;
 
-    public ScannedImage(Vector[][] matrix, String path) {
+    public ScannedImage(UUID id, Vector[][] matrix, String path) {
         this.matrix = matrix;
-        id = UUID.randomUUID();
+        this.id = id;
+        if (id == null) this.id = UUID.randomUUID();
         this.path = path;
         calculateMean();
     }

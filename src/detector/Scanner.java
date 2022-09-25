@@ -3,6 +3,7 @@ package detector;
 import database.IncludedFolders;
 import database.ScanSaver;
 import main.Finals;
+import main.Main;
 import util.Vector;
 
 import javax.imageio.ImageIO;
@@ -29,12 +30,18 @@ public class Scanner {
         loadFiles();
         scanImages();
         saver.save(scannedImages.values());
+        Main.getProgram().message("Scan complete!");
     }
 
     public void scanImages() {
         UUID id = null;
         File file;
+        int count = files.size();
+        Main.getProgram().message(files.size() + " images found");
+        int cur = 0;
         for (String i : files) {
+            cur++;
+            if (cur % 10 == 0) Main.getProgram().message(cur + " / " + count);
             file = new File(i);
             if (file.isDirectory()) return;
             String name = file.getName();
@@ -42,17 +49,16 @@ public class Scanner {
             try {
                 id = UUID.fromString(name.substring(0, name.length() - 4));
             } catch (IllegalArgumentException ex) {
-                continue;
             }
             if (scannedImages.containsKey(id)) {
                 if (id.toString().length() + 4 == name.length()) continue;
             }
-            ScannedImage si = scanImage(file);
+            ScannedImage si = scanImage(file, id);
             if (si != null) scannedImages.put(si.getId(), si);
         }
     }
 
-    private ScannedImage scanImage(File i) {
+    private ScannedImage scanImage(File i, UUID uuid) {
         Vector[][] matrix = new Vector[Finals.MATRIX_SIZE][Finals.MATRIX_SIZE];
 
         BufferedImage image;
@@ -71,7 +77,7 @@ public class Scanner {
             }
         }
 
-        ScannedImage re = new ScannedImage(matrix, i.getAbsolutePath());
+        ScannedImage re = new ScannedImage(uuid, matrix, i.getAbsolutePath());
         String path = i.getAbsolutePath();
         String newName = re.getId().toString() + path.substring(path.length() - 4);
         File rename = new File(path.substring(0, path.length() - i.getName().length()) + "/" + newName);
@@ -111,6 +117,7 @@ public class Scanner {
         File folder = new File(folderPath);
         folder = folder.getAbsoluteFile();
 
+        if (folder.list() == null) return;
         for (String s : folder.list()) {
             if (s.indexOf(';') >= 0) continue;
             if (s.length() < 4) continue;

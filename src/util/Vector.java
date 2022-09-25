@@ -37,13 +37,8 @@ public class Vector {
     }
 
     public double cosineSimilarity(Vector v) {
+        if (isNullVector() || v.isNullVector()) return 1;
         return dotProduct(v) / (getLength() * v.getLength());
-    }
-
-    public double cosineLengthSimilarity(Vector v) {
-        double a = getLength() / v.getLength();
-        if (a > 1) a = 1 / a;
-        return cosineSimilarity(v) * a;
     }
 
     public double getLength() {
@@ -58,6 +53,10 @@ public class Vector {
 
     public double distance(Vector v) {
         return Math.sqrt(distanceSquared(v));
+    }
+
+    public boolean isNullVector() {
+        return x == 0 && y == 0 && z == 0;
     }
 
     @Override
